@@ -39,6 +39,30 @@ FROM stg_swiggy_raw;
 SELECT *
 FROM stg_swiggy_raw
 WHERE TRIM(state) = '' 
+
+05_remove_duplicates.sql
+
+-- 02_remove_duplicates.sql
+-- Remove duplicate rows keeping one copy per business key.
+-- Business key = (state, city, order_date, restaurant_name, location, category, dish_name, price_inr)
+
+WITH dedup AS (
+  SELECT
+    *,
+    ROW_NUMBER() OVER (
+      PARTITION BY
+        state, city, order_date, restaurant_name, location, category, dish_name, price_inr
+      ORDER BY
+        order_date -- keep earliest/whatever rule you prefer
+    ) AS rn
+  FROM stg_swiggy_raw
+)
+-- Clean table: write to stg_swiggy_clean (or replace base)
+SELECT
+  state, city, order_date, restaurant_name, location, category, dish_name, price_inr, rating, rating_count
+INTO stg_swiggy_clean
+FROM dedup
+WHERE rn = 1;
    OR TRIM(city)  = '' 
    OR TRIM(restaurant_name) = ''
    OR TRIM(location) = ''
