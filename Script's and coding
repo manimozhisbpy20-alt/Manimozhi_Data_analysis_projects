@@ -15,6 +15,7 @@ CREATE TABLE stg_swiggy_raw (
 );
 
 --02_DEVELOP SQL LOAD SCRIPT
+
 TRUNCATE TABLE stg_swiggy_raw
 BULK INSERT stg_swiggy_raw
 FROM 
@@ -26,6 +27,8 @@ WITH (
 
 --03_data_validation_checks.sql
 -- NULL check
+--  Expectation would be no result
+
 SELECT
     SUM(CASE WHEN state IS NULL THEN 1 END) AS null_state,
     SUM(CASE WHEN city IS NULL THEN 1 END) AS null_city,
@@ -35,14 +38,20 @@ SELECT
     SUM(CASE WHEN price_inr IS NULL THEN 1 END) AS null_price
 FROM stg_swiggy_raw;
 
+-- In case If there is null, use COALESCE OR ISNULL FUNCTION based on business requirement
+
 --04_Blank check
+
 SELECT *
 FROM stg_swiggy_raw
 WHERE TRIM(state) = '' 
+   OR TRIM(city)  = '' 
+   OR TRIM(restaurant_name) = ''
+   OR TRIM(location) = ''
+   OR TRIM(category) = ''
+   OR TRIM(dish_name) = '';
 
 05_remove_duplicates.sql
-
--- 02_remove_duplicates.sql
 -- Remove duplicate rows keeping one copy per business key.
 -- Business key = (state, city, order_date, restaurant_name, location, category, dish_name, price_inr)
 
@@ -63,21 +72,17 @@ SELECT
 INTO stg_swiggy_clean
 FROM dedup
 WHERE rn = 1;
-   OR TRIM(city)  = '' 
-   OR TRIM(restaurant_name) = ''
-   OR TRIM(location) = ''
-   OR TRIM(category) = ''
-   OR TRIM(dish_name) = '';
+   
 04_create_dimensions.sql
 
 -- DIM DATE
 CREATE TABLE dim_date AS
 SELECT DISTINCT
     order_date AS date,
-    EXTRACT(YEAR FROM order_date) AS year,
-    EXTRACT(MONTH FROM order_date) AS month,
-    EXTRACT(DAY FROM order_date) AS day,
-    EXTRACT(QUARTER FROM order_date) AS quarter
+    YEAR(order_date) AS year,
+    DATEPART(MONTH,order_date) AS month,
+    DAY(order_date) AS day,
+    DATEPART(QUARTER,order_date) AS quarter
 FROM stg_swiggy_clean;
 
 ALTER TABLE dim_date ADD COLUMN date_id SERIAL PRIMARY KEY;
