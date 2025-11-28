@@ -221,3 +221,19 @@ FROM (
     FROM fact_orders
 ) t
 GROUP BY spend_bucket;
+
+--Top Selling Dishes by City (DENSE_RANK)
+
+SELECT city, dish_name, total_orders, 
+       DENSE_RANK() OVER (PARTITION BY city ORDER BY total_orders DESC) AS dish_rank
+FROM (
+    SELECT 
+        l.city,
+        d.dish_name,
+        COUNT(*) AS total_orders
+    FROM fact_orders f
+    JOIN dim_location l ON f.location_id = l.location_id
+    JOIN dim_dish d ON f.dish_id = d.dish_id
+    GROUP BY l.city, d.dish_name
+) t
+WHERE dish_rank <= 3;   -- Top 3 dishes per city
