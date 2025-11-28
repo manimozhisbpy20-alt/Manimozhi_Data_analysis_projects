@@ -1,5 +1,5 @@
 
-01_CREATE_DDL_SCRIPT_FOR_SWIGGY.CSV
+--01_CREATE_DDL_SCRIPT_FOR_SWIGGY.CSV
 
 CREATE TABLE stg_swiggy_raw (
     state VARCHAR(100),
@@ -14,7 +14,7 @@ CREATE TABLE stg_swiggy_raw (
     rating_count INT
 );
 
--- DEVELOP SQL LOAD SCRIPT
+--02_DEVELOP SQL LOAD SCRIPT
 TRUNCATE TABLE stg_swiggy_raw
 BULK INSERT stg_swiggy_raw
 FROM 
@@ -23,3 +23,24 @@ WITH (
   FIELD TERMINATOR=',',
   TABLOCK
 );
+
+--03_data_validation_checks.sql
+-- NULL check
+SELECT
+    SUM(CASE WHEN state IS NULL THEN 1 END) AS null_state,
+    SUM(CASE WHEN city IS NULL THEN 1 END) AS null_city,
+    SUM(CASE WHEN order_date IS NULL THEN 1 END) AS null_order_date,
+    SUM(CASE WHEN restaurant_name IS NULL THEN 1 END) AS null_restaurant,
+    SUM(CASE WHEN dish_name IS NULL THEN 1 END) AS null_dish,
+    SUM(CASE WHEN price_inr IS NULL THEN 1 END) AS null_price
+FROM stg_swiggy_raw;
+
+--04_Blank check
+SELECT *
+FROM stg_swiggy_raw
+WHERE TRIM(state) = '' 
+   OR TRIM(city)  = '' 
+   OR TRIM(restaurant_name) = ''
+   OR TRIM(location) = ''
+   OR TRIM(category) = ''
+   OR TRIM(dish_name) = '';
