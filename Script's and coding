@@ -185,11 +185,11 @@ ORDER BY total_orders DESC
 LIMIT 10;
 
 -- TOP RESTAURANTS
-SELECT r.restaurant_name, COUNT(*)
+SELECT r.restaurant_name, COUNT(*) AS total_orders
 FROM fact_orders f
 JOIN dim_restaurant r ON r.restaurant_id = f.restaurant_id
 GROUP BY r.restaurant_name
-ORDER BY 2 DESC
+ORDER BY total_orders DESC
 LIMIT 10;
 
 
