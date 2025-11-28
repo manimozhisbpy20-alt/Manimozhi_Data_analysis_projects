@@ -16,3 +16,15 @@ Swiggy wants to improve decision-making by understanding:
 
 This project provides SQL-driven insights based on real-world business needs.
 
+DATASET DESCRIPTION:
+Column	Description
+1. State - Customer’s state
+2. City -	Customer’s city
+3. Location	- Delivery locality
+4. Order_Date -	Date of order
+5. Restaurant_Name -	Restaurant delivering order
+6. Category -	Cuisine / food type
+7. Dish_Name -	Name of the dish
+8. Price_INR	- Price of the dish
+9. Rating -	Customer rating
+10. Rating_Count -	Number of people who rated
