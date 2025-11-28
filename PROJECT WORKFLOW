@@ -1,1 +1,44 @@
+Technologies Used
 
+SQL (SQL Server)
+
+Database: Works on any RDBMS with minor syntax adjustments
+
+
+
+---
+
+📌 Project Workflow
+
+Step	Description
+
+1. Load Raw Data -Create staging table for raw CSV input
+2. Validate Data - Check nulls, blanks, incorrect formats
+3. Clean + Remove Duplicates - Create a clean dataset using SQL transformations
+4. Create Dimensions - Build dim tables (Date, Restaurant, Location, Category, Dish)
+5. Create Fact Table - Fact table with foreign keys + measures
+6. Load Fact Table - Insert data via joins
+7. KPI & Insights - Write SQL queries for business insights
+8. Advanced SQL Analysis - Window functions, CTEs, ranking
+
+
+
+---
+
+📊 Key KPIs Included
+
+Total Orders
+
+Total Revenue
+
+Average Dish Price
+
+Average Rating
+
+Best-selling Restaurants
+
+Top Categories / Cities
+
+Monthly Trends
+
+Spend Bucket Analysis
