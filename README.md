@@ -13,6 +13,7 @@ Swiggy wants to improve decision-making by understanding:
 3. How customers spend across different price ranges
 4. What dishes receive the highest/lowest ratings
 5. Sales trends across months, quarters & weekdays
+6. Top 3 dishes by city
 
 This project provides SQL-driven insights based on real-world business needs.
 
@@ -28,3 +29,6 @@ Column	Description
 8. Price_INR	- Price of the dish
 9. Rating -	Customer rating
 10. Rating_Count -	Number of people who rated
+
+
+
