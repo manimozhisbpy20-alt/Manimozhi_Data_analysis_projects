@@ -68,3 +68,151 @@ WHERE rn = 1;
    OR TRIM(location) = ''
    OR TRIM(category) = ''
    OR TRIM(dish_name) = '';
+04_create_dimensions.sql
+
+-- DIM DATE
+CREATE TABLE dim_date AS
+SELECT DISTINCT
+    order_date AS date,
+    EXTRACT(YEAR FROM order_date) AS year,
+    EXTRACT(MONTH FROM order_date) AS month,
+    EXTRACT(DAY FROM order_date) AS day,
+    EXTRACT(QUARTER FROM order_date) AS quarter
+FROM stg_swiggy_clean;
+
+ALTER TABLE dim_date ADD COLUMN date_id SERIAL PRIMARY KEY;
+
+-- DIM LOCATION
+CREATE TABLE dim_location AS
+SELECT DISTINCT state, city, location
+FROM stg_swiggy_clean;
+
+ALTER TABLE dim_location ADD COLUMN location_id SERIAL PRIMARY KEY;
+
+-- DIM RESTAURANT
+CREATE TABLE dim_restaurant AS
+SELECT DISTINCT restaurant_name
+FROM stg_swiggy_clean;
+
+ALTER TABLE dim_restaurant ADD COLUMN restaurant_id SERIAL PRIMARY KEY;
+
+-- DIM CATEGORY
+CREATE TABLE dim_category AS
+SELECT DISTINCT category
+FROM stg_swiggy_clean;
+
+ALTER TABLE dim_category ADD COLUMN category_id SERIAL PRIMARY KEY;
+
+-- DIM DISH
+CREATE TABLE dim_dish AS
+SELECT DISTINCT dish_name
+FROM stg_swiggy_clean;
+
+ALTER TABLE dim_dish ADD COLUMN dish_id SERIAL PRIMARY KEY;
+
+
+---
+
+05_create_fact_table.sql
+
+CREATE TABLE fact_orders (
+    date_id INT,
+    location_id INT,
+    restaurant_id INT,
+    category_id INT,
+    dish_id INT,
+    price_inr DECIMAL(10,2),
+    rating DECIMAL(3,2),
+    rating_count INT
+);
+
+
+---
+
+06_load_fact_table.sql
+
+INSERT INTO fact_orders
+(
+    date_id, location_id, restaurant_id, category_id, dish_id, 
+    price_inr, rating, rating_count
+)
+SELECT
+    d.date_id,
+    l.location_id,
+    r.restaurant_id,
+    c.category_id,
+    di.dish_id,
+    s.price_inr,
+    s.rating,
+    s.rating_count
+FROM stg_swiggy_clean s
+JOIN dim_date d       ON d.date = s.order_date
+JOIN dim_location l   ON l.state = s.state 
+                     AND l.city = s.city 
+                     AND l.location = s.location
+JOIN dim_restaurant r ON r.restaurant_name = s.restaurant_name
+JOIN dim_category c   ON c.category = s.category
+JOIN dim_dish di      ON di.dish_name = s.dish_name;
+
+
+---
+
+07_kpi_queries.sql
+
+-- TOTAL ORDERS
+SELECT COUNT(*) AS total_orders FROM fact_orders;
+
+-- TOTAL REVENUE
+SELECT SUM(price_inr) AS total_revenue FROM fact_orders;
+
+-- AVG PRICE
+SELECT AVG(price_inr) AS avg_price FROM fact_orders;
+
+-- AVG RATING
+SELECT AVG(rating) AS avg_rating FROM fact_orders;
+
+-- TOP CITIES
+SELECT l.city, COUNT(*) AS total_orders
+FROM fact_orders f
+JOIN dim_location l ON f.location_id = l.location_id
+GROUP BY l.city
+ORDER BY total_orders DESC
+LIMIT 10;
+
+-- TOP RESTAURANTS
+SELECT r.restaurant_name, COUNT(*)
+FROM fact_orders f
+JOIN dim_restaurant r ON r.restaurant_id = f.restaurant_id
+GROUP BY r.restaurant_name
+ORDER BY 2 DESC
+LIMIT 10;
+
+
+---
+
+08_advanced_sql_analysis.sql
+
+-- Monthly Revenue Trend
+SELECT
+    d.year,
+    d.month,
+    SUM(f.price_inr) AS revenue
+FROM fact_orders f
+JOIN dim_date d ON f.date_id = d.date_id
+GROUP BY d.year, d.month
+ORDER BY d.year, d.month;
+
+-- Spend Buckets
+SELECT spend_bucket, COUNT(*) AS orders
+FROM (
+    SELECT price_inr,
+        CASE 
+            WHEN price_inr < 100 THEN 'Under 100'
+            WHEN price_inr BETWEEN 100 AND 199 THEN '100-199'
+            WHEN price_inr BETWEEN 200 AND 299 THEN '200-299'
+            WHEN price_inr BETWEEN 300 AND 499 THEN '300-499'
+            ELSE '500+'
+        END AS spend_bucket
+    FROM fact_orders
+) t
+GROUP BY spend_bucket;
