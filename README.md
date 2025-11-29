@@ -31,4 +31,11 @@ Column	Description
 10. Rating_Count -	Number of people who rated
 
 
+CHALLENGES FACED
+Inconsistent category names
+Null values in rating
+Duplicate dish names
+Dirty location data
+
+
 
