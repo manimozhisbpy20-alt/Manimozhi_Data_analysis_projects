@@ -39,7 +39,12 @@ How customers spend across different price ranges
 Price range summary (orders & revenue)
 Price brackets used: <100, 100-199, 200-299, 300-499, 500+.
 
+Overall takeaway:
+The ₹200–₹299 bracket (around the dataset mean ₹268) is a core “sweet spot” — highest conversion potential.
+Low ticket items (<100) generate many orders but smaller revenue per order — good for volume promotions.
+High-ticket (500+) contribute a meaningful portion of revenue but lower order counts — target for loyalty and corporate catering.
 
+Actionable idea: set dynamic discounts that preserve margin around ₹199–₹299 to maximize conversion while keeping average order value healthy.
 
 
 
