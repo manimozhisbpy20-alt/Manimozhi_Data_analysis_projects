@@ -32,10 +32,11 @@ Column	Description
 
 
 CHALLENGES FACED
-Inconsistent category names
-Null values in rating
-Duplicate dish names
-Dirty location data
+
+1.Inconsistent category names
+2.Null values in rating
+3.Duplicate dish names
+4.Dirty location data
 
 
 
